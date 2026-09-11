@@ -8,7 +8,7 @@
                 <a href="{{url('master-items/form/new')}}" class="btn btn-secondary">+ Master Items Baru</a>
             </div>
             <div class="card">
-                <div class="card-header">git Daftar Master Items Test Update</div>
+                <div class="card-header">git Daftar Master Items</div>
 
                 <div class="card-body">
                     @include('master_items.index.filter')

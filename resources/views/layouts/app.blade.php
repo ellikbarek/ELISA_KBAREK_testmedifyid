@@ -32,7 +32,8 @@
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <!-- Left Side Of Navbar -->
                     <ul class="navbar-nav me-auto">
-
+                        <li class="nav-item"><a class="nav-link" href="{{ url('master-items') }}">Master Items</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{ route('categories.index') }}">Kategori Items</a></li>
                     </ul>
 
                     <!-- Right Side Of Navbar -->
@@ -74,6 +75,14 @@
         </nav>
 
         <main class="py-4">
+            @if(session('success'))
+                <div class="container"><div class="alert alert-success">{{ session('success') }}</div></div>
+            @endif
+            @if($errors->any())
+                <div class="container"><div class="alert alert-danger"><ul class="mb-0">
+                    @foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach
+                </ul></div></div>
+            @endif
             @yield('content')
         </main>
     </div>

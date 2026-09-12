@@ -21,13 +21,15 @@
     })
 
     function getData(){
-        
+        $('#filter-error').hide();
         $('#loading-filter').show();
         var dataTableObj = $('#table').DataTable();
         var filter_kode = $('#filter-kode').val()
         var filter_nama = $('#filter-nama').val()
         var filter_harga_min = $('#filter-harga-min').val()
         var filter_harga_max = $('#filter-harga-max').val()
+        var filters = {kode: filter_kode, nama: filter_nama, hargamin: filter_harga_min, hargamax: filter_harga_max};
+        $('#export-items').attr('href', '{{ route("items.export") }}?' + $.param(filters));
         dataTableObj.clear().draw();
 
         $.ajax({
@@ -35,32 +37,33 @@
             dataType: 'json',
             tryCount: 0,
             retryLimit: 3,
-            data: 'kode=' + filter_kode + '&nama=' + filter_nama + '&hargamin=' + filter_harga_min + '&hargamax=' + filter_harga_max,
+            data: filters,
             success: function(results) {
                 var data = results.data
 
                 $.each(data, function(index, item) {
-                    array_temp = [];
-                    var harga_jual = item.harga_beli + item.harga_beli * item.laba / 100;
+                    var harga_jual = Number(item.harga_beli) + Number(item.harga_beli) * Number(item.laba) / 100;
                     harga_jual = Math.round(harga_jual)
                     var kode = item.kode;
 
-                    var html = `<a href="{{url('master-items/view/')}}/` + kode + `" class="btn btn-primary">View</a>`
-
-                    $.each(item, function(obj_name, obj_value) {
-                        if (obj_name == 'laba') return false;
-                        array_temp.push(obj_value)
-                    })
-                    array_temp.push(harga_jual)
-                    array_temp.push(item.supplier)
-                    array_temp.push(html)
-
-
-                    dataTableObj.row.add(array_temp).draw(true);
+                    var html = '<a href="{{url("master-items/view")}}/' + encodeURIComponent(kode) + '" class="btn btn-primary">View</a>';
+                    var escapeText = function(value) { return $('<div>').text(value == null ? '' : value).html(); };
+                    dataTableObj.row.add([
+                        escapeText(kode), escapeText(item.nama), escapeText(item.jenis),
+                        escapeText(item.categories.map(function(category) { return category.nama; }).join(', ')),
+                        item.harga_beli, harga_jual, escapeText(item.supplier), html
+                    ]);
                 });
+                dataTableObj.draw();
                 $('#loading-filter').hide();
             },
             error: function(xhr, textStatus, errorThrown) {
+                if (xhr.status === 422) {
+                    var errors = xhr.responseJSON.errors || {};
+                    $('#filter-error').text(Object.values(errors).flat().join(' ')).show();
+                    $('#loading-filter').hide();
+                    return;
+                }
                 this.tryCount++;
                 if (this.tryCount <= this.retryLimit) {
                     $.ajax(this);

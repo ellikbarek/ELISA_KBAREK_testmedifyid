@@ -1,5 +1,4 @@
 /node_modules
-/public/build
 /public/hot
 /public/photo
 /public/files
@@ -9,7 +8,6 @@
 /public/foto
 /storage/*.key
 /vendor
-composer.lock
 .env
 .env.backup
 .env.production

@@ -7,6 +7,58 @@
 <a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
 </p>
 
+## Menjalankan aplikasi
+
+Instalasi pertama setelah clone (PHP 8.2+, Composer, MySQL; aktifkan ekstensi PDO MySQL, fileinfo, mbstring, DOM/XML, GD, dan zlib):
+
+```sh
+composer install
+```
+
+Salin `.env.example` menjadi `.env`, lalu isi `DB_DATABASE`, `DB_USERNAME`, dan `DB_PASSWORD` sesuai database lokal yang sudah dibuat. Setelah itu:
+
+```sh
+php artisan key:generate
+php artisan migrate
+php artisan serve
+```
+
+Daftarkan akun melalui `/register`, kemudian login untuk mengakses CRUD, foto, PDF, dan Excel. Instalasi baru dimulai dengan data kosong; tambahkan kategori dan item lewat menu aplikasi. Folder `storage` dan `bootstrap/cache` harus dapat ditulis oleh PHP.
+
+Untuk menambahkan tabel kategori, relasi kategori-item, dan kolom foto pada database yang sudah dikonfigurasi, jalankan sekali:
+
+```sh
+php artisan migrate
+```
+
+Setelah dependensi PHP, `.env`, dan database siap, jalankan:
+
+```sh
+php artisan serve
+```
+
+Buka http://127.0.0.1:8000. Tidak perlu menjalankan `npm run dev` karena aset CSS dan JavaScript hasil build disertakan dalam folder `public/build`.
+
+Jika mengubah file frontend di `resources/js`, `resources/sass`, atau konfigurasi Vite, jalankan `npm ci` lalu `npm run build` dan sertakan perubahan `public/build` bersama perubahan sumber. Untuk menjalankan aplikasi sehari-hari, Node.js/npm tidak diperlukan.
+
+Jika sebelumnya menjalankan Vite dan aplikasi masih mencoba mengakses port 5173, hentikan Vite dan hapus file `public/hot` jika masih ada agar Laravel kembali menggunakan aset hasil build.
+
+## Fitur Master Items dan Kategori
+
+- Navbar menyediakan menu Master Items dan Kategori Items.
+- Form item mendukung beberapa kategori serta foto JPG/PNG/WebP maksimal 2 MB. Foto dapat diganti atau dihapus dan dilayani lewat Laravel, tanpa `storage:link`.
+- Filter harga beli minimum/maksimum bekerja terpisah, inklusif, dan menerima nol. Rentang terbalik ditolak.
+- Kategori memiliki nama dan kode unik, filter nama/kode, serta detail berisi daftar item terkait. Menghapus kategori tidak menghapus item.
+- Detail kategori menyediakan PDF melalui DomPDF, dengan tabel item dan tanggal/waktu permintaan download dalam WIB (Asia/Jakarta) pada footer.
+- Tombol Download Excel mengekspor hasil filter terakhir yang diterapkan menjadi `.xlsx`: No, Nama kategori (dipisahkan koma), Nama items, Nama supplier, Harga, Laba, Hargajual. Harga adalah harga beli, laba dalam persen, dan harga jual dibulatkan ke rupiah terdekat.
+- Workbook dikemas sebagai ZIP 2.0/Deflate menggunakan zlib bawaan PHP, tanpa memerlukan ekstensi ZIP tambahan. Node.js tidak diperlukan saat aplikasi dijalankan.
+
+Pengujian memerlukan ekstensi PDO SQLite dan menggunakan SQLite in-memory, terpisah dari database aplikasi:
+
+```sh
+php artisan test
+```
+
 ## About Laravel
 
 Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
